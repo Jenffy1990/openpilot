@@ -1252,6 +1252,60 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       AlertStatus.frogpilot, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.mail, 3.),
   },
+
+    # ──── Eventos de semáforo y señalización ────
+  EventName.redLightDetected: {
+    ET.PERMANENT: Alert(
+      "¡Semáforo en ROJO!",
+      "",
+      AlertStatus.frogpilot,    # usa tu status de FrogPilot
+      AlertSize.small,
+      Priority.HIGH,
+      VisualAlert.none,
+      AudibleAlert.red_light,   # red_light.wav
+      3.0
+    ),
+  },
+
+  EventName.greenLightDetected: {
+    ET.PERMANENT: Alert(
+      "Semáforo en VERDE",
+      "",
+      AlertStatus.frogpilot,
+      AlertSize.small,
+      Priority.MID,
+      VisualAlert.none,
+      AudibleAlert.green_light, # green_light.wav
+      3.0
+    ),
+  },
+
+  EventName.stopSignDetected: {
+    ET.PERMANENT: Alert(
+      "Señal de PARE",
+      "",
+      AlertStatus.frogpilot,
+      AlertSize.small,
+      Priority.HIGH,
+      VisualAlert.none,
+      AudibleAlert.stop_sign,   # stop_sign.wav
+      3.0
+    ),
+  },
+
+  EventName.speedLimitExceeded: {
+    ET.PERMANENT: Alert(
+      "Exceso de velocidad",
+      "",
+      AlertStatus.frogpilot,
+      AlertSize.small,
+      Priority.HIGH,
+      VisualAlert.none,
+      AudibleAlert.speed_limit, # speed_limit.wav
+      3.0
+    ),
+  },
+
 }
 
 
