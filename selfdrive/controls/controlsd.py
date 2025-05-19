@@ -211,25 +211,6 @@ class Controls:
   def update_events(self, CS):
     """Compute onroadEvents from carState"""
     
-    model_data = self.sm['modelV2']
-    # === 🛑 ALERTAS PERSONALIZADAS DE CONDUCCIÓN ===
-
-    # 1. 🚦 Semáforo rojo detectado
-    if hasattr(model_data.meta, "trafficLightState"):
-      if model_data.meta.trafficLightState == log.ModelDataV2.MetaData.TrafficLightState.red:
-        self.events.add(EventName.redLightDetected)
-
-    # 2. 🛑 Señal de STOP detectada
-    if hasattr(model_data.meta, "stopLine") and model_data.meta.stopLine:
-      self.events.add(EventName.stopSignDetected)
-
-    # 3. ⚠️ Exceso de velocidad (1 m/s por encima del límite)
-    speed_limit = self.sm['frogpilotPlan'].slcSpeedLimit
-    v_ego = CS.vEgo  # en m/s
-    if speed_limit > 0 and v_ego > speed_limit + 1.0:
-      self.events.add(EventName.speedLimitExceeded)
-
-
     self.events.clear()
 
     # Add joystick event, static on cars, dynamic on nonCars
