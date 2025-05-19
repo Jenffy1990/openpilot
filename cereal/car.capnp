@@ -460,6 +460,10 @@ struct CarControl {
       startup @20;
       thisIsFine @21;
       uwu @22;
+      red_light @23;
+      green_light @24;
+      stop_sign @25;
+      speed_limit @26;
     }
   }
 
