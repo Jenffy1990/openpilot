@@ -40,8 +40,27 @@ class FrogPilotEvents:
     self.random_event_timer = 0
     self.tracking_lead_distance = 0
 
-def update(self, carState, controlsState, frogpilotCarState, lead_distance, modelData, v_cruise, frogpilot_toggles):
+  def update(self, carState, controlsState, frogpilotCarState, lead_distance, modelData, v_cruise, frogpilot_toggles):
+    # Limpia los eventos de la iteración anterior
     self.events.clear()
+
+    # --- SEMÁFORO ---
+    if hasattr(modelData, 'meta') and hasattr(modelData.meta, 'trafficLightState'):
+      # Luz roja
+      if modelData.meta.trafficLightState == log.ModelDataV2.MetaData.TrafficLightState.red:
+        self.events.add(EventName.redLightDetected)
+      # Luz verde
+      elif modelData.meta.trafficLightState == log.ModelDataV2.MetaData.TrafficLightState.green:
+        self.events.add(EventName.greenLight)
+    # --- FIN SEMÁFORO ---
+
+    # Stop sign
+    if hasattr(modelData.meta, 'stopLine') and modelData.meta.stopLine:
+      self.events.add(EventName.stopSignDetected)
+    # Exceso de velocidad
+    slc_limit = getattr(frogpilotCarState, 'slcSpeedLimit', 0)
+    if slc_limit > 0 and carState.vEgo > slc_limit:
+      self.events.add(EventName.speedLimitExceeded)
 
     if self.random_event_playing:
       self.random_event_timer += DT_MDL
