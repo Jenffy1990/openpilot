@@ -1057,7 +1057,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Light turned green",
       "",
       AlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.green_light, # green_light.wav
+      3.0),
   },
 
   EventName.holidayActive: {
@@ -1263,19 +1264,6 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.HIGH,
       VisualAlert.none,
       AudibleAlert.red_light,   # red_light.wav
-      3.0
-    ),
-  },
-
-  EventName.greenLightDetected: {
-    ET.PERMANENT: Alert(
-      "Semáforo en VERDE",
-      "",
-      AlertStatus.frogpilot,
-      AlertSize.small,
-      Priority.MID,
-      VisualAlert.none,
-      AudibleAlert.green_light, # green_light.wav
       3.0
     ),
   },
