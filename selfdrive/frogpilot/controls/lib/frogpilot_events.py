@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import random
+from cereal import log
 
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_MDL
