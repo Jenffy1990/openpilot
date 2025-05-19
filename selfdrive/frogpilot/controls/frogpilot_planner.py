@@ -74,21 +74,7 @@ class FrogPilotPlanner:
       self.cem.stop_light_detected = False
 
     self.frogpilot_events.update(carState, controlsState, frogpilotCarState, self.lead_one.dRel, modelData, v_cruise, frogpilot_toggles)
-   
-    # --- AGREGADO: Eventos personalizados (rojo, stop, exceso velocidad) ---
-    try:
-      if hasattr(modelData, "meta") and hasattr(modelData.meta, "trafficLightState"):
-        if modelData.meta.trafficLightState == log.ModelDataV2.MetaData.TrafficLightState.red:
-          self.frogpilot_events.events.add("redLightDetected")
-      if hasattr(modelData.meta, "stopLine") and modelData.meta.stopLine:
-        self.frogpilot_events.events.add("stopSignDetected")
-      slc_speed_limit = getattr(frogpilotCarState, "slcSpeedLimit", 0)
-      if slc_speed_limit > 0 and v_ego > slc_speed_limit:
-        self.frogpilot_events.events.add("speedLimitExceeded")
-    except Exception as e:
-      pass
-    # --- FIN AGREGADO ---
-    
+      
     self.frogpilot_following.update(carState.aEgo, controlsState, frogpilotCarState, self.lead_one.dRel, v_ego, frogpilot_toggles)
 
     localizer_valid = (liveLocationKalman.status == log.LiveLocationKalman.Status.valid) and liveLocationKalman.positionGeodetic.valid
