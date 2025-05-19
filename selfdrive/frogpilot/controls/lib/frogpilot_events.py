@@ -40,8 +40,23 @@ class FrogPilotEvents:
     self.random_event_timer = 0
     self.tracking_lead_distance = 0
 
-  def update(self, carState, controlsState, frogpilotCarState, lead_distance, modelData, v_cruise, frogpilot_toggles):
+def update(self, carState, controlsState, frogpilotCarState, lead_distance, modelData, v_cruise, frogpilot_toggles):
     self.events.clear()
+
+    # --- INICIO BLOQUE DE EVENTOS PERSONALIZADOS ---
+    # Luz roja
+    if hasattr(modelData, 'meta') and hasattr(modelData.meta, 'trafficLightState'):
+      if modelData.meta.trafficLightState == log.ModelDataV2.MetaData.TrafficLightState.red:
+        self.events.add(EventName.redLightDetected)
+    # Stop sign
+    if hasattr(modelData.meta, 'stopLine') and modelData.meta.stopLine:
+      self.events.add(EventName.stopSignDetected)
+    # Límite de velocidad excedido (ajusta las fuentes si necesario)
+    frogpilotPlan = getattr(self.frogpilot_planner, 'frogpilot_plan', None)
+    if frogpilotPlan and hasattr(frogpilotPlan, 'slcSpeedLimit') and hasattr(carState, 'vEgo'):
+      if frogpilotPlan.slcSpeedLimit > 0 and carState.vEgo > frogpilotPlan.slcSpeedLimit:
+        self.events.add(EventName.speedLimitExceeded)
+    # --- FIN BLOQUE DE EVENTOS PERSONALIZADOS ---
 
     if self.random_event_playing:
       self.random_event_timer += DT_MDL
