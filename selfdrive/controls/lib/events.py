@@ -1263,9 +1263,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       AlertSize.small,
       Priority.HIGH,
       VisualAlert.none,
-      AudibleAlert.red_light,   # red_light.wav
-      3.0
-    ),
+      AudibleAlert.red_light, 3.),
   },
 
   EventName.stopSignDetected: {
@@ -1276,9 +1274,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       AlertSize.small,
       Priority.HIGH,
       VisualAlert.none,
-      AudibleAlert.stop_sign,   # stop_sign.wav
-      3.0
-    ),
+      AudibleAlert.stop_sign, 3.),
   },
 
   EventName.speedLimitExceeded: {
@@ -1289,13 +1285,9 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       AlertSize.small,
       Priority.HIGH,
       VisualAlert.none,
-      AudibleAlert.speed_limit, # speed_limit.wav
-      3.0
-    ),
+      AudibleAlert.speed_limit, 3.),
   },
-
 }
-
 
 if __name__ == '__main__':
   # print all alerts by type and priority
