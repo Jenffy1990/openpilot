@@ -46,33 +46,33 @@ class FrogPilotEvents:
     self.tracking_lead_distance = 0
 
   def update(self, carState, controlsState, frogpilotCarState, lead_distance, modelData, v_cruise, frogpilot_toggles):
-    # Limpia los eventos de la iteración anterior
+    # Limpia eventos previos
     self.events.clear()
 
     # --- SEMÁFORO ---
     cur = None
-    if hasattr(modelData, 'meta') and hasattr(modelData.meta, 'trafficLightState'):
+    if hasattr(modelData.meta, 'trafficLightState'):
       cur = modelData.meta.trafficLightState
     prev = self.last_traffic_light
 
     if cur is not None:
-      # Luz roja → alerta sólo una vez
-      if cur == log.ModelDataV2.TrafficLightState.red:
+      # Luz roja: alerta una vez
+      if cur == log.ModelDataV2.MetaData.TrafficLightState.red:
         self.events.add(EventName.redLightDetected, static=True)
-      # Cambio de rojo a verde → alerta sólo una vez
-      elif prev == log.ModelDataV2.TrafficLightState.red and cur == log.ModelDataV2.TrafficLightState.green:
+      # Rojo→Verde: alerta una vez
+      elif prev == log.ModelDataV2.MetaData.TrafficLightState.red and cur == log.ModelDataV2.MetaData.TrafficLightState.green:
         self.events.add(EventName.greenLight, static=True)
 
     self.last_traffic_light = cur
     # --- FIN SEMÁFORO ---
 
-    # Stop sign
+    # Señal de stop
     if hasattr(modelData.meta, 'stopLine') and modelData.meta.stopLine:
       self.events.add(EventName.stopSignDetected)
 
     # Exceso de velocidad
     slc_limit = getattr(frogpilotCarState, 'slcSpeedLimit', 0)
-    SPEED_BUFFER = 1.4  # ~5 km/h de margen
+    SPEED_BUFFER = 1.4  # ~5 km/h margen
     if slc_limit > 0 and carState.vEgo > slc_limit + SPEED_BUFFER:
       self.events.add(EventName.speedLimitExceeded, static=True)
 
