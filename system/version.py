@@ -149,7 +149,19 @@ def get_build_metadata(path: str = BASEDIR) -> BuildMetadata:
                       is_dirty=is_dirty(path)))
 
   cloudlog.exception("unable to get build metadata")
-  raise Exception("invalid build metadata")
+  # Custom fork: devolver metadata por defecto en lugar de abortar para evitar bloqueos en dispositivos sin .git ni build.json
+  return BuildMetadata(
+    channel="unknown",
+    openpilot=OpenpilotMetadata(
+      version="0.0.0",
+      release_notes="",
+      git_commit="",
+      git_origin="",
+      git_commit_date="",
+      build_style="unknown",
+      is_dirty=False
+    )
+  )
 
 
 def check_update_required(build_meta: BuildMetadata) -> None:
