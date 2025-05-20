@@ -200,61 +200,59 @@ class ThemeManager:
 
     self.theme_assets["holiday_theme"] = "stock"
 
-  def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False, randomize_theme=False):
-    if time_validated and frogpilot_toggles.holiday_themes:
-      self.update_holiday()
-    else:
-      self.theme_assets["holiday_theme"] = "stock"
+def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False, randomize_theme=False):
+    # -- Desactivar por completo los holiday themes --
+    self.theme_assets["holiday_theme"] = "stock"
 
-    if self.theme_assets.get("holiday_theme") != "stock":
-      asset_mappings = {
-        "color_scheme": ("colors", self.theme_assets.get("holiday_theme")),
-        "distance_icons": ("distance_icons", self.theme_assets.get("holiday_theme")),
-        "icon_pack": ("icons", self.theme_assets.get("holiday_theme")),
-        "sound_pack": ("sounds", self.theme_assets.get("holiday_theme")),
-        "turn_signal_pack": ("signals", self.theme_assets.get("holiday_theme")),
-        "wheel_image": ("wheel_image", self.theme_assets.get("holiday_theme"))
-      }
-    elif (boot_run or randomize_theme) and frogpilot_toggles.random_themes:
-      selected_theme = randomize_theme_asset()
-      selected_wheel = randomize_wheel_image(selected_theme)
+    # Determinar el mapeo de assets según random_themes o parámetros fijos
+    if (boot_run or randomize_theme) and frogpilot_toggles.random_themes:
+        # Temas aleatorios
+        selected_theme = randomize_theme_asset()
+        selected_wheel = randomize_wheel_image(selected_theme)
 
-      asset_mappings = {
-        "color_scheme": ("colors", selected_theme.replace("-animated", "")),
-        "distance_icons": ("distance_icons", randomize_distance_icons()),
-        "icon_pack": ("icons", selected_theme),
-        "sound_pack": ("sounds", selected_theme.replace("-animated", "")),
-        "turn_signal_pack": ("signals", selected_theme.replace("-animated", "")),
-        "wheel_image": ("wheel_image", selected_wheel)
-      }
+        asset_mappings = {
+            "color_scheme":      ("colors",          selected_theme.replace("-animated", "")),
+            "distance_icons":    ("distance_icons",  randomize_distance_icons()),
+            "icon_pack":         ("icons",           selected_theme),
+            "sound_pack":        ("sounds",          selected_theme.replace("-animated", "")),
+            "turn_signal_pack":  ("signals",         selected_theme.replace("-animated", "")),
+            "wheel_image":       ("wheel_image",     selected_wheel),
+        }
 
-      update_frogpilot_toggles()
+        # Persistir el nuevo tema en los toggles
+        update_frogpilot_toggles()
+
     elif not frogpilot_toggles.random_themes:
-      asset_mappings = {
-        "color_scheme": ("colors", frogpilot_toggles.color_scheme),
-        "distance_icons": ("distance_icons", frogpilot_toggles.distance_icons),
-        "icon_pack": ("icons", frogpilot_toggles.icon_pack),
-        "sound_pack": ("sounds", frogpilot_toggles.sound_pack),
-        "turn_signal_pack": ("signals", frogpilot_toggles.signal_icons),
-        "wheel_image": ("wheel_image", frogpilot_toggles.wheel_image)
-      }
+        # Temas fijos según toggles
+        asset_mappings = {
+            "color_scheme":      ("colors",          frogpilot_toggles.color_scheme),
+            "distance_icons":    ("distance_icons",  frogpilot_toggles.distance_icons),
+            "icon_pack":         ("icons",           frogpilot_toggles.icon_pack),
+            "sound_pack":        ("sounds",          frogpilot_toggles.sound_pack),
+            "turn_signal_pack":  ("signals",         frogpilot_toggles.signal_icons),
+            "wheel_image":       ("wheel_image",     frogpilot_toggles.wheel_image),
+        }
     else:
-      return False
+        # Ni holiday, ni random, ni fijos: no hay cambio
+        return False
 
+    # Aplicar los cambios de assets (si cambian o es boot_run)
     theme_updated = False
     for asset, (asset_type, current_value) in asset_mappings.items():
-      if current_value != self.theme_assets.get(asset) or boot_run:
-        print(f"Updating {asset}: {asset_type} with value {current_value}")
+        if current_value != self.theme_assets.get(asset) or boot_run:
+            print(f"Updating {asset}: {asset_type} → {current_value}")
 
-        if asset_type == "wheel_image":
-          update_wheel_image(current_value, self.theme_assets.get("holiday_theme"), random_event=False)
-        else:
-          update_theme_asset(asset_type, current_value, self.theme_assets.get("holiday_theme"))
+            # Todos referencian siempre holiday_theme="stock"
+            if asset_type == "wheel_image":
+                update_wheel_image(current_value, "stock", random_event=False)
+            else:
+                update_theme_asset(asset_type, current_value, "stock")
 
-        self.theme_assets[asset] = current_value
-        theme_updated = True
+            self.theme_assets[asset] = current_value
+            theme_updated = True
 
     return theme_updated
+
 
   @staticmethod
   def handle_verification_failure(ext, theme_component, theme_name, theme_param, theme_path, download_path):
