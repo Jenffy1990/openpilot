@@ -10,13 +10,11 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.git import get_commit, get_origin, get_branch, get_short_branch, get_commit_date
 
-# Ramas de lanzamiento y prueba
 RELEASE_BRANCHES = ['FrogPilot', 'FrogPilot-Vetting']
 TESTED_BRANCHES = RELEASE_BRANCHES + ['FrogPilot-Staging', 'FrogPilot-Testing']
 
 BUILD_METADATA_FILENAME = "build.json"
 
-# Versiones fijas
 training_version: bytes = b"0.2.0"
 terms_version: bytes = b"2"
 
@@ -46,11 +44,14 @@ def is_dirty(cwd: str = BASEDIR) -> bool:
 
   dirty = False
   try:
+    # Actually check dirty files
     if not is_prebuilt(cwd):
+      # This is needed otherwise touched files might show up as modified
       try:
         subprocess.check_call(["git", "update-index", "--refresh"], cwd=cwd)
       except subprocess.CalledProcessError:
         pass
+
       dirty = (subprocess.call(["git", "diff-index", "--quiet", branch, "--"], cwd=cwd)) != 0
   except subprocess.CalledProcessError:
     cloudlog.exception("git subprocess failed while checking dirty")
@@ -75,6 +76,8 @@ class OpenpilotMetadata:
 
   @property
   def comma_remote(self) -> bool:
+    # note to fork maintainers, this is used for release metrics. please do not
+    # touch this to get rid of the orange startup alert. there's better ways to do that
     return self.git_normalized_origin == "github.com/commaai/openpilot"
 
   @property
@@ -149,24 +152,7 @@ def get_build_metadata(path: str = BASEDIR) -> BuildMetadata:
                       is_dirty=is_dirty(path)))
 
   cloudlog.exception("unable to get build metadata")
-  # Custom fork: devolver metadata por defecto en lugar de abortar para evitar bloqueos en dispositivos sin .git ni build.json
-  return BuildMetadata(
-    channel="unknown",
-    openpilot=OpenpilotMetadata(
-      version="0.0.0",
-      release_notes="",
-      git_commit="",
-      git_origin="",
-      git_commit_date="",
-      build_style="unknown",
-      is_dirty=False
-    )
-  )
-
-
-def check_update_required(build_meta: BuildMetadata) -> None:
-  # Custom fork: desactivar comprobación de versión mínima
-  return
+  raise Exception("invalid build metadata")
 
 
 if __name__ == "__main__":
