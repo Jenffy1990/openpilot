@@ -71,6 +71,11 @@ class OpenpilotMetadata:
   is_dirty: bool  # whether there are local changes
 
   @property
+  def minimum_version(self) -> str:
+    # Custom fork: evitamos UpdateRequired forzando mínimo = versión actual
+    return self.version
+
+  @property
   def short_version(self) -> str:
     return self.version.split('-')[0]
 
