@@ -15,11 +15,12 @@ RANDOM_EVENTS_CHANCE = 0.01 * DT_MDL
 class FrogPilotEvents:
   def __init__(self, FrogPilotPlanner):
     self.frogpilot_planner = FrogPilotPlanner
-
     self.events = Events()
 
-    # Inicialización de estado previo de semáforo
+    # Estados previos para lógica de flanco
     self.last_traffic_light = None
+    self.last_stop_sign = False
+    self.last_speed_exceeded = False
 
     # Banderas de eventos random
     self.accel30_played = False
@@ -49,32 +50,35 @@ class FrogPilotEvents:
     # Limpia eventos previos
     self.events.clear()
 
-    # --- SEMÁFORO ---
+    # --- SEMÁFORO (flanco) ---
     cur = None
     if hasattr(modelData.meta, 'trafficLightState'):
       cur = modelData.meta.trafficLightState
     prev = self.last_traffic_light
 
-    if cur is not None:
-      # Luz roja: alerta una vez
-      if cur == log.ModelDataV2.MetaData.TrafficLightState.red:
-        self.events.add(EventName.redLightDetected, static=True)
-      # Rojo→Verde: alerta una vez
-      elif prev == log.ModelDataV2.MetaData.TrafficLightState.red and cur == log.ModelDataV2.MetaData.TrafficLightState.green:
-        self.events.add(EventName.greenLight, static=True)
+    # rojo → solo al entrar en rojo
+    if cur == log.ModelDataV2.MetaData.TrafficLightState.red and prev != log.ModelDataV2.MetaData.TrafficLightState.red:
+      self.events.add(EventName.redLightDetected)
+    # rojo→verde → solo al cambiar de rojo a verde
+    elif prev == log.ModelDataV2.MetaData.TrafficLightState.red and cur == log.ModelDataV2.MetaData.TrafficLightState.green:
+      self.events.add(EventName.greenLight)
 
     self.last_traffic_light = cur
     # --- FIN SEMÁFORO ---
 
-    # Señal de stop
-    if hasattr(modelData.meta, 'stopLine') and modelData.meta.stopLine:
+    # --- STOP SIGN (flanco) ---
+    stop = hasattr(modelData.meta, 'stopLine') and modelData.meta.stopLine
+    if stop and not self.last_stop_sign:
       self.events.add(EventName.stopSignDetected)
+    self.last_stop_sign = stop
 
-    # Exceso de velocidad
+    # --- EXCESO DE VELOCIDAD (flanco) ---
     slc_limit = getattr(frogpilotCarState, 'slcSpeedLimit', 0)
-    SPEED_BUFFER = 1.4  # ~5 km/h margen
-    if slc_limit > 0 and carState.vEgo > slc_limit + SPEED_BUFFER:
-      self.events.add(EventName.speedLimitExceeded, static=True)
+    SPEED_BUFFER = 1.4  # ~5 km/h de margen
+    speed_exceeded = slc_limit > 0 and carState.vEgo > slc_limit + SPEED_BUFFER
+    if speed_exceeded and not self.last_speed_exceeded:
+      self.events.add(EventName.speedLimitExceeded)
+    self.last_speed_exceeded = speed_exceeded
 
     if self.random_event_playing:
       self.random_event_timer += DT_MDL
