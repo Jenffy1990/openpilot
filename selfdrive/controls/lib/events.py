@@ -481,7 +481,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "BRAKE!",
       "Risk of Collision",
       AlertStatus.critical, AlertSize.full,
-      Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.warningSoft, 2.),
+      Priority.HIGHEST, VisualAlert.fcw, AudibleAlert.collision_warning, 2.),
   },
 
   EventName.ldw: {
@@ -489,7 +489,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Lane Departure Detected",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.ldw, AudibleAlert.prompt, 3.),
+      Priority.LOW, VisualAlert.ldw, AudibleAlert.lane_departure, 3.),
   },
 
   # ********** events only containing alerts that display while engaged **********
@@ -591,7 +591,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Car Detected in Blindspot",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.blindspot, .1),
   },
 
   EventName.laneChange: {
@@ -607,7 +607,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Take Control",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.promptRepeat, 2.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.steering_limit, 2.),
   },
 
   # Thrown when the fan is driven at >50% but is not rotating
@@ -1046,10 +1046,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.goatSteerSaturated: {
     ET.WARNING: Alert(
-      "JESUS TAKE THE WHEEL!!",
+      "PLEASE TAKE THE WHEEL!!",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.goat, 2.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.steering_limit, 3.),
   },
 
   EventName.greenLight: {
@@ -1070,7 +1070,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Car Detected in Blindspot",
       "",
       AlertStatus.userPrompt, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.warningSoft, .1),
+      Priority.LOW, VisualAlert.none, AudibleAlert.blindspot, .1),
   },
 
   EventName.leadDeparting: {
@@ -1078,7 +1078,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Lead departed",
       "",
       AlertStatus.frogpilot, AlertSize.small,
-      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.MID, VisualAlert.none, AudibleAlert.lead_departed, 3.),
   },
 
   EventName.noLaneAvailable: {
@@ -1112,7 +1112,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "Speed limit changed",
       "",
       AlertStatus.frogpilot, AlertSize.small,
-      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+      Priority.LOW, VisualAlert.none, AudibleAlert.speed_limit_changed, 3.),
   },
 
   EventName.thisIsFineSteerSaturated: {
@@ -1120,7 +1120,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "This is fine ☕",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.thisIsFine, 2.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.steering_limit, 2.),
   },
 
   EventName.torqueNNLoad: {
@@ -1197,7 +1197,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "IE Has Stopped Responding...",
       "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.firefox, 4.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.steering_limit, 4.),
   },
 
   EventName.hal9000: {
@@ -1257,7 +1257,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     # ──── Eventos de semáforo y señalización ────
   EventName.redLightDetected: {
     ET.PERMANENT: Alert(
-      "¡Semáforo en ROJO!",
+      "¡Light is RED, Please Wait!",
       "",
       AlertStatus.frogpilot,    # usa tu status de FrogPilot
       AlertSize.small,
@@ -1270,7 +1270,7 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.stopSignDetected: {
     ET.PERMANENT: Alert(
-      "Señal de PARE",
+      "Stop Sign Detected, Please Stop",
       "",
       AlertStatus.frogpilot,
       AlertSize.small,
