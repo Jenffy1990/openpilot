@@ -17,12 +17,12 @@ class FrogPilotEvents:
     self.frogpilot_planner = FrogPilotPlanner
     self.events = Events()
 
-    # Estados previos para lógica de flanco
+    # Para flancos
     self.last_traffic_light = None
     self.last_stop_sign = False
     self.last_speed_exceeded = False
 
-    # Banderas de eventos random
+    # Flags de eventos random
     self.accel30_played = False
     self.accel35_played = False
     self.accel40_played = False
@@ -47,35 +47,35 @@ class FrogPilotEvents:
     self.tracking_lead_distance = 0
 
   def update(self, carState, controlsState, frogpilotCarState, lead_distance, modelData, v_cruise, frogpilot_toggles):
-    # Limpia eventos previos
     self.events.clear()
 
-    # --- SEMÁFORO (flanco) ---
+    # --- SEMÁFORO ---
     cur = None
     if hasattr(modelData.meta, 'trafficLightState'):
       cur = modelData.meta.trafficLightState
     prev = self.last_traffic_light
 
-    # rojo → solo al entrar en rojo
+    # Rojo → disparar la primera vez que entra en rojo
     if cur == log.ModelDataV2.MetaData.TrafficLightState.red and prev != log.ModelDataV2.MetaData.TrafficLightState.red:
       self.events.add(EventName.redLightDetected)
-    # rojo→verde → solo al cambiar de rojo a verde
+
+    # Rojo→Verde → disparar solo al pasar de rojo a verde
     elif prev == log.ModelDataV2.MetaData.TrafficLightState.red and cur == log.ModelDataV2.MetaData.TrafficLightState.green:
       self.events.add(EventName.greenLight)
 
     self.last_traffic_light = cur
     # --- FIN SEMÁFORO ---
 
-    # --- STOP SIGN (flanco) ---
+    # --- STOP SIGN ---
     stop = hasattr(modelData.meta, 'stopLine') and modelData.meta.stopLine
     if stop and not self.last_stop_sign:
       self.events.add(EventName.stopSignDetected)
     self.last_stop_sign = stop
 
-    # --- EXCESO DE VELOCIDAD (flanco) ---
+    # --- EXCESO DE VELOCIDAD ---
     slc_limit = getattr(frogpilotCarState, 'slcSpeedLimit', 0)
-    SPEED_BUFFER = 1.4  # ~5 km/h de margen
-    speed_exceeded = slc_limit > 0 and carState.vEgo > slc_limit + SPEED_BUFFER
+    SPEED_BUFFER = 1.4
+    speed_exceeded = (slc_limit > 0) and (carState.vEgo > slc_limit + SPEED_BUFFER)
     if speed_exceeded and not self.last_speed_exceeded:
       self.events.add(EventName.speedLimitExceeded)
     self.last_speed_exceeded = speed_exceeded
