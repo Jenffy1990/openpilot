@@ -463,7 +463,13 @@ struct CarControl {
       red_light @23;
       green_light @24;
       stop_sign @25;
-      speed_limit @26;
+      collision_warning @26;
+      speed_limit_changed @27;
+      steering_limit @28;
+      blindspot @29;
+      lane_departure @30;
+      lead_departed @31;
+      speed_limit @32;
     }
   }
 
